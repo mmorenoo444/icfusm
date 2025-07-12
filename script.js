@@ -123,5 +123,129 @@ const malla = {
   ],
 };
 
-// --- Resto del código (funciones init, generarMalla, etc.) ---
-// (Mantén las mismas funciones que te envié anteriormente)
+// Variables globales
+let creditosAprobados = 0;
+
+// Inicializar la malla
+function init() {
+  generarMalla();
+  document.getElementById("reset").addEventListener("click", resetMalla);
+  actualizarCreditos();
+}
+
+// Generar HTML de la malla
+function generarMalla() {
+  const contenedor = document.querySelector(".malla");
+  contenedor.innerHTML = "";
+
+  malla.semestres.forEach((semestre) => {
+    const divSemestre = document.createElement("div");
+    divSemestre.className = "semestre";
+    divSemestre.innerHTML = `<h2>${semestre.nombre}</h2>`;
+
+    semestre.ramos.forEach((ramo) => {
+      const divRamo = document.createElement("div");
+      divRamo.className = `ramo ${ramo.aprobado ? "aprobado" : ""} ${ramo.bloqueado ? "bloqueado" : ""}`;
+      divRamo.innerHTML = `
+        <span class="sigla">${ramo.sigla}</span>
+        ${ramo.nombre}
+        <span class="creditos">${ramo.creditos}cr</span>
+      `;
+      divRamo.dataset.id = ramo.id;
+
+      if (!ramo.bloqueado) {
+        divRamo.addEventListener("click", () => toggleAprobado(ramo.id));
+      }
+
+      divSemestre.appendChild(divRamo);
+    });
+
+    contenedor.appendChild(divSemestre);
+  });
+}
+
+// Marcar/desmarcar ramo como aprobado
+function toggleAprobado(id) {
+  const ramo = encontrarRamo(id);
+  ramo.aprobado = !ramo.aprobado;
+  
+  if (ramo.aprobado) {
+    creditosAprobados += ramo.creditos;
+  } else {
+    creditosAprobados -= ramo.creditos;
+  }
+
+  actualizarBloqueos();
+  generarMalla();
+  actualizarCreditos();
+  guardarProgreso();
+}
+
+// Buscar ramo por ID
+function encontrarRamo(id) {
+  for (const semestre of malla.semestres) {
+    for (const ramo of semestre.ramos) {
+      if (ramo.id === id) return ramo;
+    }
+  }
+}
+
+// Actualizar estado de bloqueo de ramos
+function actualizarBloqueos() {
+  malla.semestres.forEach((semestre) => {
+    semestre.ramos.forEach((ramo) => {
+      if (ramo.requisitos) {
+        const requisitosCumplidos = ramo.requisitos.every(reqId => {
+          const req = encontrarRamo(reqId);
+          return req ? req.aprobado : false;
+        });
+        ramo.bloqueado = !requisitosCumplidos;
+      }
+    });
+  });
+}
+
+// Reiniciar malla
+function resetMalla() {
+  if (confirm("¿Borrar todo tu progreso?")) {
+    malla.semestres.forEach(semestre => {
+      semestre.ramos.forEach(ramo => {
+        ramo.aprobado = false;
+        if (ramo.requisitos) ramo.bloqueado = true;
+      });
+    });
+    creditosAprobados = 0;
+    generarMalla();
+    actualizarCreditos();
+    localStorage.removeItem("mallaUSM");
+  }
+}
+
+// Guardar progreso en localStorage
+function guardarProgreso() {
+  localStorage.setItem("mallaUSM", JSON.stringify({
+    malla: malla,
+    creditos: creditosAprobados
+  }));
+}
+
+// Cargar progreso guardado
+function cargarProgreso() {
+  const guardado = localStorage.getItem("mallaUSM");
+  if (guardado) {
+    const datos = JSON.parse(guardado);
+    Object.assign(malla, datos.malla);
+    creditosAprobados = datos.creditos;
+  }
+}
+
+// Actualizar contador de créditos
+function actualizarCreditos() {
+  document.getElementById("creditos").textContent = `Créditos aprobados: ${creditosAprobados}`;
+}
+
+// Iniciar
+document.addEventListener("DOMContentLoaded", () => {
+  cargarProgreso();
+  init();
+});
