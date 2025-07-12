@@ -67,7 +67,7 @@ const malla = {
       nombre: "6° Semestre",
       ramos: [
         { id: "FIS220", sigla: "FIS220", nombre: "CAMPOS ELECTROMAGNETICOS I", creditos: 7, aprobado: false, bloqueado: true, requisitos: ["MAT024", "FIS131", "FIS121"] },
-        { id: "FIS120", sigla: "FIS120", nombre: "FUNDAMENTOS DE TERMODINÁMICA APLICADA", creditos: 6, aprobado: false, bloqueado: true, requisitos: ["MAT023", "FIS131"] },
+        { id: "ICF130", sigla: "ICF130", nombre: "FUNDAMENTOS DE TERMODINÁMICA APLICADA", creditos: 6, aprobado: false, bloqueado: true, requisitos: ["MAT023", "FIS131"] },
         { id: "FIS242", sigla: "FIS242", nombre: "FÍSICA CUÁNTICA I", creditos: 7, aprobado: false, bloqueado: true, requisitos: ["FIS210"] },
         { id: "FIS245", sigla: "FIS245", nombre: "MÉTODOS DE LA FÍSICA MATEMÁTICA", creditos: 7, aprobado: false, bloqueado: true, requisitos: ["MAT024"] },
       ],
